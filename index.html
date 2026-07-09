@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automatizamos — Software a la medida para pequeños negocios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1A1E;
+    --panel:#12262B;
+    --panel-2:#0E2024;
+    --paper:#EDE6D8;
+    --brass:#C08A3E;
+    --brass-bright:#D9A458;
+    --teal:#4C8C82;
+    --rule:#24393F;
+    --muted:#8FA3A6;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Space Grotesk', sans-serif;
+    margin:0;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:inherit;}
+
+  /* background grid, like graph/blueprint paper */
+  .grid-bg{
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
+  }
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
+
+  /* crosshair corner marks — technical drawing motif */
+  .panel{
+    position:relative;
+    border:1px solid var(--rule);
+    background:var(--panel);
+  }
+  .panel::before, .panel::after,
+  .panel .cx-br, .panel .cx-bl{
+    content:"";
+    position:absolute;
+    width:14px; height:14px;
+    pointer-events:none;
+  }
+  .panel::before{ top:-1px; left:-1px; border-top:1px solid var(--brass); border-left:1px solid var(--brass);}
+  .panel::after{ top:-1px; right:-1px; border-top:1px solid var(--brass); border-right:1px solid var(--brass);}
+  .panel .cx-bl{ bottom:-1px; left:-1px; border-bottom:1px solid var(--brass); border-left:1px solid var(--brass);}
+  .panel .cx-br{ bottom:-1px; right:-1px; border-bottom:1px solid var(--brass); border-right:1px solid var(--brass);}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,26,30,0.9);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--rule);
+  }
+  nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px;
+  }
+  .brand{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    display:flex; align-items:center; gap:10px;
+  }
+  .brand .dot{width:8px;height:8px;background:var(--brass-bright);border-radius:50%; box-shadow:0 0 8px var(--brass-bright);}
+  nav .cta-small{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    border:1px solid var(--brass);
+    color:var(--brass-bright);
+    padding:8px 16px;
+    text-decoration:none;
+    letter-spacing:0.02em;
+    transition:background .15s ease, color .15s ease;
+  }
+  nav .cta-small:hover{background:var(--brass); color:var(--bg);}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:88px 0 70px;
+    position:relative;
+    overflow:hidden;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--teal);
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    margin-bottom:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:"§"; color:var(--brass);}
+  h1.headline{
+    font-size:clamp(2.2rem, 5vw, 3.6rem);
+    max-width:15ch;
+    color:var(--paper);
+  }
+  h1.headline em{
+    font-style:normal;
+    color:var(--brass-bright);
+  }
+  .sub{
+    max-width:52ch;
+    margin-top:22px;
+    color:var(--muted);
+    font-size:1.08rem;
+  }
+  .hero-actions{
+    margin-top:36px;
+    display:flex; gap:16px; flex-wrap:wrap;
+  }
+  .btn-primary{
+    font-family:'IBM Plex Mono', monospace;
+    background:var(--brass);
+    color:var(--bg);
+    border:none;
+    padding:14px 26px;
+    font-size:0.92rem;
+    text-decoration:none;
+    font-weight:500;
+    letter-spacing:0.01em;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover{background:var(--brass-bright); transform:translateY(-1px);}
+  .btn-ghost{
+    font-family:'IBM Plex Mono', monospace;
+    background:transparent;
+    color:var(--paper);
+    border:1px solid var(--rule);
+    padding:14px 26px;
+    font-size:0.92rem;
+    text-decoration:none;
+    transition:border-color .15s ease;
+  }
+  .btn-ghost:hover{border-color:var(--teal);}
+
+  /* readout terminal — signature element */
+  .readout{
+    margin-top:56px;
+    max-width:620px;
+    padding:22px 24px;
+  }
+  .readout .rh{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--muted);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    padding-bottom:12px;
+    border-bottom:1px dashed var(--rule);
+  }
+  .readout .rh .lights span{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--rule); margin-left:5px;
+  }
+  .readout .rh .lights span.on{background:var(--teal);}
+  #typer{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.92rem;
+    color:var(--paper);
+    min-height:64px;
+    white-space:pre-wrap;
+  }
+  #typer .lbl{color:var(--muted);}
+  #typer .val{color:var(--brass-bright);}
+  .cursor{
+    display:inline-block; width:8px; height:1.1em; background:var(--brass-bright);
+    vertical-align:text-bottom; margin-left:2px;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:86px 0;}
+  .section-head{
+    display:flex; align-items:baseline; gap:16px;
+    margin-bottom:44px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:18px;
+  }
+  .section-head .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--brass);
+    letter-spacing:0.1em;
+  }
+  .section-head h2{font-size:clamp(1.5rem,3vw,2rem); color:var(--paper);}
+
+  /* problem grid */
+  .problem-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+  }
+  .problem-cell{
+    background:var(--bg);
+    padding:26px 22px;
+  }
+  .problem-cell .k{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--muted);
+    display:block;
+    margin-bottom:10px;
+  }
+  .problem-cell p{margin:0; color:var(--paper); font-size:0.98rem;}
+
+  /* process — legit numbered sequence */
+  .process{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px,1fr));
+    gap:26px;
+  }
+  .step{padding:26px 22px;}
+  .step .num{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--brass);
+    font-size:0.85rem;
+    display:block;
+    margin-bottom:14px;
+  }
+  .step h3{font-size:1.05rem; margin-bottom:8px; color:var(--paper);}
+  .step p{margin:0; color:var(--muted); font-size:0.92rem;}
+
+  /* case studies */
+  .cases{display:flex; flex-direction:column; gap:1px; background:var(--rule); border:1px solid var(--rule);}
+  .case{
+    background:var(--bg);
+    padding:28px 26px;
+    display:grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media(max-width:720px){.case{grid-template-columns:1fr;}}
+  .case h3{font-size:1.1rem; margin-bottom:10px; color:var(--paper);}
+  .case p{color:var(--muted); font-size:0.92rem; margin:0 0 12px;}
+  .case .stat-row{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    display:flex; flex-direction:column; gap:8px;
+    border-left:1px dashed var(--rule);
+    padding-left:20px;
+  }
+  .case .stat-row .stat{display:flex; justify-content:space-between; gap:12px;}
+  .case .stat-row .stat .v{color:var(--brass-bright);}
+  .honest-note{
+    margin-top:14px;
+    font-size:0.82rem;
+    color:var(--teal);
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  /* pricing */
+  .pricing{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+    gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+  }
+  .plan{background:var(--bg); padding:30px 26px;}
+  .plan .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem; color:var(--muted); letter-spacing:0.08em;
+  }
+  .plan h3{margin:10px 0 6px; font-size:1.3rem; color:var(--paper);}
+  .plan .price{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--brass-bright);
+    font-size:1.5rem;
+    margin-bottom:16px;
+  }
+  .plan .price span{font-size:0.85rem; color:var(--muted);}
+  .plan ul{list-style:none; padding:0; margin:0 0 22px; color:var(--muted); font-size:0.9rem;}
+  .plan li{padding:7px 0; border-top:1px dashed var(--rule);}
+  .plan li:first-child{border-top:none;}
+
+  /* contact */
+  .contact-panel{padding:44px 40px; text-align:center;}
+  .contact-panel h2{font-size:clamp(1.5rem,3.4vw,2.1rem); max-width:20ch; margin:0 auto 16px;}
+  .contact-panel p{color:var(--muted); max-width:48ch; margin:0 auto 30px;}
+  .contact-links{display:flex; gap:16px; justify-content:center; flex-wrap:wrap;}
+
+  footer{
+    border-top:1px solid var(--rule);
+    padding:30px 0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media(prefers-reduced-motion: reduce){
+    .cursor{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>automatizamos<span class="mono" style="color:var(--muted); font-weight:400; font-size:0.85rem;">.co</span></div>
+    <a class="cta-small" href="#contacto">CONTAR MI PROBLEMA →</a>
+  </div>
+</nav>
+
+<header class="hero grid-bg">
+  <div class="wrap">
+    <div class="eyebrow">software a la medida para pequeños negocios</div>
+    <h1 class="headline">Software a la medida para automatizar las tareas repetitivas de tu negocio.</h1>
+    <p class="sub">Si tienes un negocio pequeño, seguro hay una tarea manual que te quita horas cada semana — coordinar citas, cotizar a mano, facturar uno por uno. Detecto esa tarea y construyo el software puntual que la resuelve, hecho a la medida de tu caso, no una plantilla genérica.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#contacto">Contar mi problema</a>
+      <a class="btn-ghost" href="#casos">Ver herramientas ya construidas</a>
+    </div>
+
+    <div class="readout panel">
+      <span class="cx-bl"></span><span class="cx-br"></span>
+      <div class="rh">
+        <span>REGISTRO DE CONSULTAS</span>
+        <span class="lights"><span class="on"></span><span class="on"></span><span></span></span>
+      </div>
+      <div id="typer"></div>
+    </div>
+  </div>
+</header>
+
+<section id="problema">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">01 · EL PROBLEMA REAL</span>
+      <h2>Lo que casi siempre le pasa a un negocio pequeño</h2>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-cell"><span class="k">SÍNTOMA</span><p>Coordinar citas o pedidos a mano, por WhatsApp, todo el día.</p></div>
+      <div class="problem-cell"><span class="k">SÍNTOMA</span><p>Responder la misma cotización, con los mismos cálculos, una y otra vez.</p></div>
+      <div class="problem-cell"><span class="k">SÍNTOMA</span><p>Facturar o llevar cuentas a mano porque "así se ha hecho siempre".</p></div>
+      <div class="problem-cell"><span class="k">SÍNTOMA</span><p>Un Excel que solo una persona sabe editar sin romperlo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="proceso" class="grid-bg">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">02 · CÓMO TRABAJAMOS</span>
+      <h2>Un proceso corto, en orden</h2>
+    </div>
+    <div class="process">
+      <div class="panel step"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="num">01</span>
+        <h3>Me cuentas el problema</h3>
+        <p>En tus palabras, sin tecnicismos. Lo que te quita tiempo o te genera dudas al decidir.</p>
+      </div>
+      <div class="panel step"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="num">02</span>
+        <h3>Te muestro un primer prototipo</h3>
+        <p>Días, no meses. Algo que ya puedes tocar y probar con tus propios datos.</p>
+      </div>
+      <div class="panel step"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="num">03</span>
+        <h3>Ajustamos con datos reales</h3>
+        <p>Corregimos lo que no encaje. Sin adornos innecesarios — solo lo que resuelve tu tarea.</p>
+      </div>
+      <div class="panel step"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="num">04</span>
+        <h3>Te queda la herramienta</h3>
+        <p>Lista para usar, con instrucciones claras. Sin dependencia eterna de mí para operarla.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="casos">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">03 · HERRAMIENTAS YA CONSTRUIDAS</span>
+      <h2>Ejemplos reales, con resultados reales</h2>
+    </div>
+    <div class="cases">
+      <div class="case">
+        <div>
+          <h3>El organizador de turnos automáticos</h3>
+          <p><strong>El problema:</strong> una clínica estética o consultorio pierde horas coordinando citas por WhatsApp, cancelando turnos manualmente y sufriendo porque los clientes olvidan asistir.</p>
+          <p class="honest-note">La solución: un enlace donde el paciente ve los huecos libres, reserva solo y recibe un recordatorio automático por WhatsApp un día antes.</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><span class="lbl">Pasos para el cliente</span><span class="v">3</span></div>
+          <div class="stat"><span class="lbl">Recordatorio</span><span class="v">automático</span></div>
+          <div class="stat"><span class="lbl">Coordinación manual</span><span class="v">cero</span></div>
+        </div>
+      </div>
+      <div class="case">
+        <div>
+          <h3>El cotizador de precios instantáneo</h3>
+          <p><strong>El problema:</strong> una empresa de mudanzas o imprenta pasa todo el día respondiendo correos para dar presupuestos personalizados basados en peso, distancia o tamaño.</p>
+          <p class="honest-note">La solución: una calculadora inteligente en su web. El cliente llena tres datos y recibe su cotización exacta por correo en 5 segundos.</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><span class="lbl">Datos que llena el cliente</span><span class="v">3</span></div>
+          <div class="stat"><span class="lbl">Tiempo de respuesta</span><span class="v">5 seg</span></div>
+          <div class="stat"><span class="lbl">Correos manuales</span><span class="v">cero</span></div>
+        </div>
+      </div>
+      <div class="case">
+        <div>
+          <h3>El facturador de un solo clic</h3>
+          <p><strong>El problema:</strong> un pequeño comercio o profesional independiente pierde los domingos revisando transferencias bancarias y haciendo facturas a mano una por una.</p>
+          <p class="honest-note">La solución: un sistema que detecta el pago, genera la factura legal automáticamente y se la envía al cliente por email sin que el dueño mueva un dedo.</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><span class="lbl">Facturas manuales</span><span class="v">cero</span></div>
+          <div class="stat"><span class="lbl">Detección de pago</span><span class="v">automática</span></div>
+          <div class="stat"><span class="lbl">Envío al cliente</span><span class="v">automático</span></div>
+        </div>
+      </div>
+      <div class="case">
+        <div>
+          <h3>El recopilador de reportes de campo</h3>
+          <p><strong>El problema:</strong> los técnicos de una empresa de mantenimiento llenan informes en papel que se rompen, se pierden o se vuelven ilegibles antes de llegar a la oficina.</p>
+          <p class="honest-note">La solución: una aplicación móvil ultrasimple con tres botones grandes para tomar fotos del trabajo, firmar en la pantalla y enviar el reporte listo.</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><span class="lbl">Botones principales</span><span class="v">3</span></div>
+          <div class="stat"><span class="lbl">Reportes en papel</span><span class="v">cero</span></div>
+          <div class="stat"><span class="lbl">Firma</span><span class="v">en pantalla</span></div>
+        </div>
+      </div>
+      <div class="case">
+        <div>
+          <h3>El conector de inventarios</h3>
+          <p><strong>El problema:</strong> una tienda vende ropa en su local físico y también por Instagram, pero vende prendas que ya no tiene en stock porque no actualiza el Excel a tiempo.</p>
+          <p class="honest-note">La solución: una base de datos compartida que descuenta el producto al instante, ya sea que se venda en la caja del local o en la tienda digital.</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><span class="lbl">Canales conectados</span><span class="v">2</span></div>
+          <div class="stat"><span class="lbl">Actualización</span><span class="v">al instante</span></div>
+          <div class="stat"><span class="lbl">Excel manual</span><span class="v">cero</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="precios" class="grid-bg">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">04 · CÓMO SE COBRA</span>
+      <h2>Precio por lo que resuelve, no por hora</h2>
+    </div>
+    <div class="pricing">
+      <div class="panel plan"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="tag">PROTOTIPO</span>
+        <h3>Diagnóstico + prueba</h3>
+        <div class="price">Cotización<span> según alcance</span></div>
+        <ul>
+          <li>Definimos el problema exacto</li>
+          <li>Primer prototipo funcional</li>
+          <li>Revisión con tus datos reales</li>
+        </ul>
+        <a class="btn-ghost" href="#contacto" style="display:inline-block;">Empezar aquí</a>
+      </div>
+      <div class="panel plan"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="tag">HERRAMIENTA COMPLETA</span>
+        <h3>Entrega a la medida</h3>
+        <div class="price">Precio fijo<span> por proyecto</span></div>
+        <ul>
+          <li>Herramienta terminada y documentada</li>
+          <li>Ajustes hasta que funcione como esperas</li>
+          <li>Sin cuota mensual obligatoria</li>
+        </ul>
+        <a class="btn-ghost" href="#contacto" style="display:inline-block;">Cotizar</a>
+      </div>
+      <div class="panel plan"><span class="cx-bl"></span><span class="cx-br"></span>
+        <span class="tag">SOPORTE CONTINUO</span>
+        <h3>Mantenimiento y mejoras</h3>
+        <div class="price">Mensual<span> opcional</span></div>
+        <ul>
+          <li>Ajustes cuando cambien tus datos o proceso</li>
+          <li>Nuevas funciones bajo demanda</li>
+          <li>Cancelas cuando quieras</li>
+        </ul>
+        <a class="btn-ghost" href="#contacto" style="display:inline-block;">Preguntar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="wrap">
+    <div class="panel contact-panel">
+      <span class="cx-bl"></span><span class="cx-br"></span>
+      <h2>Cuéntame tu problema. En una llamada corta sabemos si esto tiene sentido.</h2>
+      <p>Sin compromiso, sin cotización automática. Primero entiendo qué te está costando tiempo o dinero hoy.</p>
+      <div class="contact-links">
+        <a class="btn-primary" href="mailto:tucorreo@ejemplo.com">Escribir por correo</a>
+        <a class="btn-ghost" href="https://wa.me/573000000000">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">automatizamos.co — software a la medida para pequeños negocios</div>
+</footer>
+
+<script>
+  const entries = [
+    {lbl:"PROBLEMA", val:"citas coordinadas a mano por WhatsApp, todo el día"},
+    {lbl:"SOLUCIÓN", val:"reserva y recordatorio automático, sin intervención"},
+    {lbl:"PROBLEMA", val:"cotizar por correo, una por una, todo el día"},
+    {lbl:"SOLUCIÓN", val:"calculadora que responde en 5 segundos"},
+    {lbl:"PROBLEMA", val:"facturas hechas a mano, revisando transferencias"},
+    {lbl:"SOLUCIÓN", val:"factura automática al detectar el pago"},
+    {lbl:"PROBLEMA", val:"________________________ (el tuyo)"},
+    {lbl:"SOLUCIÓN", val:"lo definimos juntos →"},
+  ];
+
+  const el = document.getElementById('typer');
+  let entryIndex = 0;
+
+  function typeEntry(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      el.innerHTML = entries.map(e => `<span class="lbl">${e.lbl}:</span> <span class="val">${e.val}</span>`).join('<br>');
+      return;
+    }
+    const entry = entries[entryIndex % entries.length];
+    const full = entry.val;
+    let i = 0;
+    const prefix = `<span class="lbl">${entry.lbl}:</span> `;
+    el.innerHTML = prefix + '<span class="val"></span><span class="cursor"></span>';
+    const valSpan = el.querySelector('.val');
+
+    const typeChar = () => {
+      if(i < full.length){
+        valSpan.textContent += full[i];
+        i++;
+        setTimeout(typeChar, 32);
+      } else {
+        setTimeout(() => {
+          entryIndex++;
+          typeEntry();
+        }, 1400);
+      }
+    };
+    typeChar();
+  }
+
+  typeEntry();
+</script>
+
+</body>
+</html>
